@@ -279,6 +279,40 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 1.2rem; }
     align-items: flex-start;
   }
 }
+
+  /* Beetle crawling over the name */
+.hero-text { position: relative; }
+
+.beetle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 40px;
+  height: 30px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.beetle-svg {
+  display: block;
+  width: 40px;
+  height: 30px;
+}
+
+.beetle-svg.flip { transform: scaleX(-1); }
+
+.beetle .legs {
+  animation: legs-wiggle 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes legs-wiggle {
+  from { transform: translateY(0); }
+  to { transform: translateY(1.5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beetle { display: none; }
+}
   
   .nav-links.open { display: flex; }
 

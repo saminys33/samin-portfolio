@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/png" href="images/favicon.png" />
   <style>
+    [hidden] { display: none !important; }
+
+    /* Filter buttons */
     .filter-bar {
       display: flex;
       flex-wrap: wrap;
@@ -32,7 +35,85 @@
       color: #fff;
     }
 
-    [hidden] { display: none !important; }
+    /* Collapsing publication box */
+    .pub-item {
+      background: #fff;
+      border: 1.5px solid var(--accent);
+      border-radius: 14px;
+      margin-bottom: 1.2rem;
+      color: var(--text);
+    }
+
+    .pub-item summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.3rem 1.5rem;
+    }
+
+    .pub-item summary::-webkit-details-marker { display: none; }
+
+    .pub-title {
+      font-size: 1.15rem;
+      line-height: 1.4;
+      margin: 0 0 0.5rem;
+      color: var(--text);
+    }
+
+    .badge {
+      display: inline-block;
+      vertical-align: middle;
+      font-size: 0.78rem;
+      font-weight: bold;
+      color: var(--accent);
+      background: var(--accent-light);
+      border-radius: 999px;
+      padding: 0.2rem 0.7rem;
+      margin-left: 0.4rem;
+    }
+
+    .pub-journal {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    /* Arrow: points down when closed, up when open */
+    .chevron {
+      flex: 0 0 auto;
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid var(--accent);
+      border-bottom: 2px solid var(--accent);
+      transform: rotate(45deg);
+      margin: 0.5rem 0.4rem 0 0;
+      transition: transform 0.25s ease;
+    }
+
+    .pub-item[open] .chevron {
+      transform: rotate(-135deg);
+      margin-top: 0.8rem;
+    }
+
+    .pub-details {
+      padding: 0 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+
+    .detail-label {
+      color: var(--muted);
+      margin: 0.9rem 0 0.2rem;
+      font-size: 0.9rem;
+    }
+
+    .detail-value {
+      margin: 0;
+      font-size: 1rem;
+    }
 
     .empty-msg {
       color: var(--muted);
@@ -69,33 +150,98 @@
       <div class="filter-bar" role="group" aria-label="Filter publications">
         <button class="filter-btn active" type="button" data-filter="all" aria-pressed="true">All</button>
         <button class="filter-btn" type="button" data-filter="research" aria-pressed="false">Research papers</button>
-        <button class="filter-btn" type="button" data-filter="conference" aria-pressed="false">Conference proceedings</button>
         <button class="filter-btn" type="button" data-filter="review" aria-pressed="false">Review papers</button>
+        <button class="filter-btn" type="button" data-filter="conference" aria-pressed="false">Conference proceedings</button>
       </div>
 
-      <!-- RESEARCH PAPER -->
-      <article class="card pub-item" data-category="research">
-        <h3>Farmers’ knowledge, perceptions, and bio-rational management of Brinjal shoot and fruit borer, <em>Leucinodes orbonalis</em>, in Bangladesh</h3>
-        <p class="meta">Dey, A., <strong>Soumee, S. Y.</strong>, Hia, J. N., Nikson, A. K., Akram, M. W., Sharmin, D., Haque, M. M., Ullah, M.S. · 2026</p>
-        <p class="meta"><em>Under review at Journal of Plant Diseases and Protection</em></p>
-      </article>
-      
-      <article class="card pub-item" data-category="research">
-        <h3>Lethal and sub-lethal effects of lambda-cyhalothrin (Karate) on the biological parameters of red spider mite, <em>Tetranychus macfarlanei</em> (Acari: Tetranychidae)</h3>
-        <p class="meta">Kulsuma, K., <strong>Soumee, S. Y.</strong>, Dey, A., Ullah, M.S. · 2026</p>
-        <p class="meta"><em>Under review at International Journal of Acarology</em></p>
-      </article>
-      
-      <article class="card pub-item" data-category="research">
-        <h3>Life cycle characteristics of the litchi stink bug, <em>Tessaratoma javanica</em> (Thunberg) (Hemiptera: Tessaratomidae), and its sustainable management through mycoinsecticides</h3>
-        <p class="meta">Barsa, S. M., Shampa, S. I., Dey, A., <strong>Soumee, S. Y.</strong>, Nikson, A. K., Ullah, M.S. · 2026</p>
-        <p class="meta"><em>Under review at Egyptian Journal of Biological Pest Control</em></p>
-      </article>
+      <!-- RESEARCH PAPER 1: brinjal shoot and fruit borer -->
+      <details class="pub-item" data-category="research">
+        <summary>
+          <div>
+            <h3 class="pub-title">
+              Farmers’ knowledge, perceptions, and bio-rational management of Brinjal shoot and fruit borer, <em>Leucinodes orbonalis</em>, in Bangladesh
+              <span class="badge">Research Paper</span>
+            </h3>
+            <p class="pub-journal">Journal of Plant Diseases and Protection · Under review</p>
+          </div>
+          <span class="chevron" aria-hidden="true"></span>
+        </summary>
 
-      <!-- To add a paper, copy one card above and change data-category:
+        <div class="pub-details">
+          <p class="detail-label">Authors</p>
+          <p class="detail-value">Dey, A., <strong>Soumee, S. Y.</strong>, Hia, J. N., Nikson, A. K., Akram, M. W., Sharmin, D., Haque, M. M., Ullah, M. S.</p>
+
+          <p class="detail-label">Year</p>
+          <p class="detail-value">2026</p>
+
+          <p class="detail-label">Status</p>
+          <p class="detail-value">Under review</p>
+
+          <p class="detail-label">Link</p>
+          <p class="detail-value">Not yet available</p>
+        </div>
+      </details>
+
+      <!-- RESEARCH PAPER 2: lambda-cyhalothrin on red spider mite -->
+      <details class="pub-item" data-category="research">
+        <summary>
+          <div>
+            <h3 class="pub-title">
+              Lethal and sub-lethal effects of lambda-cyhalothrin (Karate) on the biological parameters of red spider mite, <em>Tetranychus macfarlanei</em> (Acari: Tetranychidae)
+              <span class="badge">Research Paper</span>
+            </h3>
+            <p class="pub-journal">International Journal of Acarology · Under review</p>
+          </div>
+          <span class="chevron" aria-hidden="true"></span>
+        </summary>
+
+        <div class="pub-details">
+          <p class="detail-label">Authors</p>
+          <p class="detail-value">Kulsuma, K., <strong>Soumee, S. Y.</strong>, Dey, A., Ullah, M. S.</p>
+
+          <p class="detail-label">Year</p>
+          <p class="detail-value">2026</p>
+
+          <p class="detail-label">Status</p>
+          <p class="detail-value">Under review</p>
+
+          <p class="detail-label">Link</p>
+          <p class="detail-value">Not yet available</p>
+        </div>
+      </details>
+
+      <!-- RESEARCH PAPER 3: litchi stink bug -->
+      <details class="pub-item" data-category="research">
+        <summary>
+          <div>
+            <h3 class="pub-title">
+              Life cycle characteristics of the litchi stink bug, <em>Tessaratoma javanica</em> (Thunberg) (Hemiptera: Tessaratomidae), and its sustainable management through mycoinsecticides
+              <span class="badge">Research Paper</span>
+            </h3>
+            <p class="pub-journal">Egyptian Journal of Biological Pest Control · Under review</p>
+          </div>
+          <span class="chevron" aria-hidden="true"></span>
+        </summary>
+
+        <div class="pub-details">
+          <p class="detail-label">Authors</p>
+          <p class="detail-value">Barsa, S. M., Shampa, S. I., Dey, A., <strong>Soumee, S. Y.</strong>, Nikson, A. K., Ullah, M. S.</p>
+
+          <p class="detail-label">Year</p>
+          <p class="detail-value">2026</p>
+
+          <p class="detail-label">Status</p>
+          <p class="detail-value">Under review</p>
+
+          <p class="detail-label">Link</p>
+          <p class="detail-value">Not yet available</p>
+        </div>
+      </details>
+
+      <!-- To add a paper, copy one <details> block above and change data-category:
            data-category="research"   for research papers
-           data-category="conference" for conference proceedings
-           data-category="review" for review papers-->
+           data-category="review"     for review papers
+           data-category="conference" for conference proceedings -->
 
       <p class="empty-msg" id="emptyMsg" hidden>No publications in this category yet.</p>
     </section>

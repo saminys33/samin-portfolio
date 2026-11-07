@@ -313,6 +313,54 @@ main { max-width: 1100px; margin: 0 auto; padding: 0 1.2rem; }
 @media (prefers-reduced-motion: reduce) {
   .beetle { display: none; }
 }
+
+  /* Expandable boxes */
+.expand-box {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.expand-box summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+}
+
+/* Hides the default triangle in some browsers */
+.expand-box summary::-webkit-details-marker { display: none; }
+
+.expand-title {
+  display: block;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.expand-short {
+  display: block;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.expand-arrow {
+  font-size: 0.9rem;
+  color: var(--accent);
+  transition: transform 0.25s ease;
+}
+
+/* Turns the arrow upside down when the box is open */
+.expand-box[open] .expand-arrow { transform: rotate(180deg); }
+
+.expand-body {
+  padding: 0 1.2rem 1.2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
   
   .nav-links.open { display: flex; }
 

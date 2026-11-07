@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Samin Yeaser Soumee | MS in Entomology | Research Enthusiast</title>
+  <meta name="description" content="Samin Yeaser Soumee, Agriculture graduate from Bangladesh Agricultural University, pursuing an MS degree in Entomology." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="images/favicon.png" />
+  <style>
+    /* Name with the walking ladybird on top */
+    .name-wrap {
+      position: relative;
+      padding: 18px 0 6px;
+    }
+
+    #walkCanvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top navigation (same on every page) -->
+  <header class="site-header">
+    <nav class="nav">
+      <a href="index.html" class="brand">Samin Yeaser Soumee</a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="about.html">About</a></li>
+        <li><a href="education.html">Education</a></li>
+        <li><a href="research.html">Research</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="experience.html">Experience</a></li>
+        <li><a href="awards.html">Awards</a></li>
+        <li><a href="certifications.html">Certifications</a></li>
+        <li><a href="activities.html">Activities</a></li>
+        <li><a class="cv-button" href="cv.pdf" download>Download CV</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME: introduction -->
+    <section id="home" class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Agriculturist · Research Enthusiast</p>
+
+        <div class="name-wrap" id="nameWrap">
+          <h1 id="name">Samin Yeaser Soumee</h1>
+          <canvas id="walkCanvas" aria-hidden="true"></canvas>
+        </div>
+
+        <p class="subtitle">MS in Entomology, Bangladesh Agricultural University</p>
+        <p class="intro">
+          Agriculture graduate from Bangladesh Agricultural University, combining practical
+          field experience with academic research. Currently pursuing an MS degree in the Department of Entomology and working as a Research Assistant
+          at the Laboratory of Applied Entomology and Acarology.
+        </p>
+        <div class="hero-buttons">
+          <a class="btn primary" href="cv.pdf" download>Download CV</a>
+          <a class="btn" href="#contact">Get in touch</a>
+        </div>
+        <div class="profile-links">
+          <a href="https://scholar.google.com/citations?user=TVSpQ98AAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+          <a href="https://orcid.org/0009-0001-7020-0396" target="_blank" rel="noopener">ORCID</a>
+          <a href="https://www.researchgate.net/profile/Samin-Yeaser-Soumee" target="_blank" rel="noopener">ResearchGate</a>
+          <a href="https://www.linkedin.com/in/samin-yeaser-soumee-a31945295" target="_blank" rel="noopener">LinkedIn</a>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <img src="images/portrait.jpg" alt="Portrait of Samin Yeaser Soumee" onerror="this.style.display='none'" />
+      </div>
+    </section>
+
+    <!-- CONTACT: kept on the home page -->
+    <section id="contact" class="section alt">
+      <h2>Contact</h2>
+      <p>Open to research collaborations and opportunities in Entomology.</p>
+      <ul class="simple-list">
+        <li>Email: <a href="mailto:saminys33@gmail.com">saminys33@gmail.com</a></li>
+        <li>Mobile: <a href="tel:+8801837691209">+880 1837-691209</a></li>
+        <li>Location: Bangladesh Agricultural University, Mymensingh-2202, Bangladesh</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Samin Yeaser Soumee</p>
+  </footer>
+
+  <script src="script.js"></script>
+
+  <!-- Ladybird walking over the name -->
+  <script>
+    (function () {
+      const wrap = document.getElementById("nameWrap");
+      const h1 = document.getElementById("name");
+      const canvas = document.getElementById("walkCanvas");
+      if (!wrap || !h1 || !canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      const SPEED = 0.5;            // crawling speed, pixels per frame at 60 fps
+      const SHELL = "#ef4444";      // beetle shell colour
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // Split the name into one span per letter so we know where each letter sits.
+      // The text looks exactly the same as before.
+      const text = h1.textContent.trim();
+      h1.textContent = "";
+      const glyphs = [];
+      for (const ch of text) {
+        if (ch === " ") {
+          h1.appendChild(document.createTextNode(" "));
+          continue;
+        }
+        const span = document.createElement("span");
+        span.textContent = ch;
+        h1.appendChild(span);
+        glyphs.push({ ch: ch, span: span });
+      }
+
+      let W = 0, H = 0, dpr = 1;
+      let fontSize = 40, fontCss = "", r = 8;
+      let pathPoints = [];
+      let pathIndex = 0;
+      let targetPoint = null;
+      const bug = { x: 0, y: 0, angle: 0, stepCycle: 0, antennaPhase: 0, moving: false };
+
+      // Six legs: x and y are their anchor points on the body
+      const LEGS = [
+        { phase: 0,             x: -0.6, y: -0.5 },
+        { phase: Math.PI,       x:  0.6, y: -0.5 },
+        { phase: Math.PI * 0.5, x: -0.8, y:  0   },
+        { phase: Math.PI * 1.5, x:  0.8, y:  0   },
+        { phase: Math.PI,       x: -0.7, y:  0.6 },
+        { phase: 0,             x:  0.7, y:  0.6 }
+      ];
+
+      // Trace the outline of each letter, then order those points into one walk path
+      function buildPath() {
+        const wr = wrap.getBoundingClientRect();
+        const off = document.createElement("canvas");
+        off.width = W;
+        off.height = H;
+        const o = off.getContext("2d");
+        o.font = fontCss;
+        o.textAlign = "left";
+        o.textBaseline = "alphabetic";
+        o.strokeStyle = "#fff";
+        o.lineWidth = Math.max(2, fontSize * 0.1);
+        o.lineJoin = "round";
+
+        const m = o.measureText("M");
+        const ascent = m.fontBoundingBoxAscent || fontSize * 0.8;
+
+        glyphs.forEach((g) => {
+          const rr = g.span.getBoundingClientRect();
+          o.strokeText(g.ch, rr.left - wr.left, rr.top - wr.top + ascent);
+        });
+
+        const data = o.getImageData(0, 0, W, H).data;
+        const step = Math.max(2, Math.round(fontSize / 14));
+        const pts = [];
+        for (let y = 0; y < H; y += step) {
+          for (let x = 0; x < W; x += step) {
+            if (data[(y * W + x) * 4 + 3] > 128) pts.push({ x: x, y: y });
+          }
+        }
+        pathPoints = pts.length ? sortPoints(pts) : [];
+      }
+
+      // Nearest-neighbour ordering, so the beetle moves from point to point smoothly
+      function sortPoints(points) {
+        const left = points.slice();
+        const result = [left.shift()];
+        while (left.length) {
+          const cur = result[result.length - 1];
+          let best = 0;
+          let bestD = Infinity;
+          for (let i = 0; i < left.length; i++) {
+            const dx = left[i].x - cur.x;
+            const dy = left[i].y - cur.y;
+            const d = dx * dx + dy * dy;
+            if (d < bestD) { bestD = d; best = i; }
+          }
+          result.push(left.splice(best, 1)[0]);
+        }
+        return result;
+      }
+
+      function nearestPathIndex() {
+        let best = 0;
+        let bestD = Infinity;
+        for (let i = 0; i < pathPoints.length; i++) {
+          const d = (pathPoints[i].x - bug.x) ** 2 + (pathPoints[i].y - bug.y) ** 2;
+          if (d < bestD) { bestD = d; best = i; }
+        }
+        return best;
+      }
+
+      function resize() {
+        const wr = wrap.getBoundingClientRect();
+        W = Math.max(1, Math.floor(wr.width));
+        H = Math.max(1, Math.floor(wr.height));
+        dpr = window.devicePixelRatio || 1;
+
+        canvas.width = Math.floor(W * dpr);
+        canvas.height = Math.floor(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const cs = getComputedStyle(h1);
+        fontSize = parseFloat(cs.fontSize);
+        fontCss = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+        r = Math.max(6, Math.min(10, fontSize * 0.2));
+
+        buildPath();
+
+        targetPoint = null;
+        if (pathPoints.length) {
+          pathIndex = 0;
+          bug.x = pathPoints[0].x;
+          bug.y = pathPoints[0].y;
+        }
+        if (reduceMotion) drawFrame();
+      }
+
+      // Move the beetle one step
+      function update(dt) {
+        const k = dt / 16.67;
+        bug.antennaPhase += 0.06 * k;
+        bug.moving = false;
+
+        let tx, ty;
+        if (targetPoint) {
+          tx = targetPoint.x;
+          ty = targetPoint.y;
+        } else {
+          if (!pathPoints.length) return;
+          // Skip points the beetle is already standing on
+          let guard = 0;
+          while (guard++ < 12) {
+            const p = pathPoints[pathIndex];
+            if (Math.hypot(p.x - bug.x, p.y - bug.y) < 6) {
+              pathIndex = (pathIndex + 1) % pathPoints.length; // loops forever
+            } else {
+              break;
+            }
+          }
+          tx = pathPoints[pathIndex].x;
+          ty = pathPoints[pathIndex].y;
+        }
+
+        const dx = tx - bug.x;
+        const dy = ty - bug.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (targetPoint && dist < 5) {
+          targetPoint = null;            // reached the spot that was clicked
+          pathIndex = nearestPathIndex();
+          return;
+        }
+        if (dist < 1) return;
+
+        // Turn gently toward the target
+        const want = Math.atan2(dy, dx);
+        let diff = want - bug.angle;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        bug.angle += diff * Math.min(1, 0.12 * k);
+
+        const step = Math.min(SPEED * k, dist);
+        bug.x += Math.cos(bug.angle) * step;
+        bug.y += Math.sin(bug.angle) * step;
+
+        bug.moving = true;
+        bug.stepCycle += 0.3 * k;
+      }
+
+      // Draw the ladybird
+      function drawBug() {
+        ctx.save();
+        ctx.translate(bug.x, bug.y);
+        ctx.rotate(bug.angle + Math.PI / 2); // head points in the direction of travel
+
+        // Shadow
+        ctx.save();
+        ctx.fillStyle = "rgba(0,0,0,0.35)";
+        ctx.beginPath();
+        ctx.ellipse(2, 3, r * 0.9, r * 1.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Legs
+        ctx.strokeStyle = "#1a1a1a";
+        ctx.lineWidth = Math.max(1.2, r * 0.12);
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        LEGS.forEach((leg) => {
+          const stride = bug.moving ? Math.sin(bug.stepCycle + leg.phase) * r * 0.35 : 0;
+          const startX = leg.x * r * 0.6;
+          const startY = leg.y * r * 0.6;
+          const kneeX = leg.x * r * 1.3 + stride;
+          const kneeY = leg.y * r * 0.9 - Math.abs(stride) * 0.3;
+          const footX = leg.x * r * 1.7 + stride * 1.2;
+          const footY = leg.y * r * 1.2;
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(kneeX, kneeY);
+          ctx.lineTo(footX, footY);
+          ctx.stroke();
+        });
+
+        // Head with white spots
+        ctx.fillStyle = "#121212";
+        ctx.beginPath();
+        ctx.arc(0, -r * 0.85, r * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#f8fafc";
+        ctx.beginPath();
+        ctx.arc(-r * 0.22, -r * 0.95, r * 0.12, 0, Math.PI * 2);
+        ctx.arc(r * 0.22, -r * 0.95, r * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Antennae, wiggling
+        const wL = Math.sin(bug.antennaPhase) * 1.5;
+        const wR = Math.cos(bug.antennaPhase) * 1.5;
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.15, -r * 1.1);
+        ctx.quadraticCurveTo(-r * 0.4 + wL, -r * 1.5, -r * 0.5 + wL, -r * 1.6);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(r * 0.15, -r * 1.1);
+        ctx.quadraticCurveTo(r * 0.4 + wR, -r * 1.5, r * 0.5 + wR, -r * 1.6);
+        ctx.stroke();
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(-r * 0.5 + wL, -r * 1.6, 1.4, 0, Math.PI * 2);
+        ctx.arc(r * 0.5 + wR, -r * 1.6, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glossy domed shell
+        ctx.fillStyle = SHELL;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 0.9, r * 1.05, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.4, r * 0.1, 0, 0, r * 1.1);
+        grad.addColorStop(0, "rgba(255,255,255,0.45)");
+        grad.addColorStop(0.3, "rgba(255,255,255,0.05)");
+        grad.addColorStop(0.8, "rgba(0,0,0,0.3)");
+        grad.addColorStop(1, "rgba(0,0,0,0.6)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 0.9, r * 1.05, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Seam between the wing cases
+        ctx.strokeStyle = "#111827";
+        ctx.lineWidth = Math.max(1, r * 0.06);
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 0.75);
+        ctx.lineTo(0, r * 1.02);
+        ctx.stroke();
+
+        // Black spots
+        ctx.fillStyle = "#111";
+        const spots = [
+          { x: -r * 0.45, y: -r * 0.35, s: r * 0.18 },
+          { x:  r * 0.45, y: -r * 0.35, s: r * 0.18 },
+          { x: -r * 0.55, y:  r * 0.15, s: r * 0.22 },
+          { x:  r * 0.55, y:  r * 0.15, s: r * 0.22 },
+          { x: -r * 0.3,  y:  r * 0.65, s: r * 0.16 },
+          { x:  r * 0.3,  y:  r * 0.65, s: r * 0.16 },
+          { x: 0,         y: -r * 0.65, s: r * 0.14 }
+        ];
+        spots.forEach((spot) => {
+          ctx.beginPath();
+          ctx.arc(spot.x, spot.y, spot.s, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.restore();
+      }
+
+      function drawFrame() {
+        ctx.clearRect(0, 0, W, H);
+        drawBug();
+      }
+
+      function frame(now) {
+        const dt = lastTime === null ? 16.67 : Math.min(50, now - lastTime);
+        lastTime = now;
+        update(dt);
+        drawFrame();
+        requestAnimationFrame(frame);
+      }
+
+      let lastTime = null;
+
+      // Click or tap the name to send the beetle to that spot
+      wrap.addEventListener("pointerdown", (e) => {
+        if (reduceMotion) return;
+        const rect = wrap.getBoundingClientRect();
+        targetPoint = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      });
+
+      let resizeTimer = null;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resize, 150);
+      });
+
+      resize();
+      if (!reduceMotion) requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
